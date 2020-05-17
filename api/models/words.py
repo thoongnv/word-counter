@@ -1,4 +1,4 @@
-from models.base import db
+from models.base import db, to_json
 
 
 class Word(db.Model):
@@ -6,4 +6,8 @@ class Word(db.Model):
     name = db.Column(db.String)
     frequency = db.Column(db.Integer)
     site_id = db.Column(db.Integer, db.ForeignKey('site.id'), nullable=False)
-    site = db.relationship('Site', backref=db.backref('words', lazy=True))
+    site = db.relationship('Site', backref=db.backref('words', lazy='dynamic'))
+
+    @property
+    def json(self):
+        return to_json(self, self.__class__)

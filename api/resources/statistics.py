@@ -5,10 +5,16 @@ from flask_restful import Resource, abort, reqparse
 from models.base import db
 from models.sites import Site
 from models.words import Word
+from resources.base import get_paging_params
 from utils.counter import WordCounter
+from utils.misc import DEFAULT_PAGINATION_LIMIT
 
 parser = reqparse.RequestParser()
 parser.add_argument('website_url', type=str)
+# paging fields
+parser.add_argument('order', type=str)
+parser.add_argument('offset', type=int, default=0)
+parser.add_argument('limit', type=int, default=DEFAULT_PAGINATION_LIMIT)
 
 
 def abort_if_statistic_not_exist(
@@ -25,10 +31,32 @@ def abort_if_statistic_not_exist(
     return statistic
 
 
+def build_words(site, offset, limit, order_by):
+    words = {
+        'total': site.words.count(),
+        'offset': offset,
+        'limit': limit,
+    }
+    words['data'] = [word.json for word in site.words.order_by(order_by)[
+        offset:offset + limit]]
+    return words
+
+
 class StatisticResource(Resource):
     def get(self, statistic_id):
         statistic = abort_if_statistic_not_exist(statistic_id)
-        return statistic, 200
+        params = get_paging_params(parser.parse_args())
+        offset = params['offset']
+        limit = params['limit']
+        order = params['order']
+        order_by = None
+        if 'frequency' in order:
+            order_by = getattr(Word.frequency, order['frequency'])()
+
+        parse_statistic = statistic.json
+        parse_statistic['words'] = \
+            build_words(statistic, offset, limit, order_by)
+        return parse_statistic, 200
 
     def put(self, statistic_id):
         statistic = abort_if_statistic_not_exist(statistic_id)
@@ -45,7 +73,28 @@ class StatisticResource(Resource):
 
 class StatisticResourceList(Resource):
     def get(self):
-        return [], 200
+        params = get_paging_params(parser.parse_args())
+        offset = params['offset']
+        limit = params['limit']
+        order = params['order']
+        sites = Site.query.offset(offset).limit(offset + limit).all()
+        order_by = None
+        if 'frequency' in order:
+            order_by = getattr(Word.frequency, order['frequency'])()
+
+        statistics = {
+            'total': Site.query.count(),
+            'offset': offset,
+            'limit': limit,
+            'data': []
+        }
+        for site in sites:
+            parse_site = site.json
+            parse_site['words'] = \
+                build_words(site, 0, DEFAULT_PAGINATION_LIMIT, order_by)
+            statistics['data'].append(parse_site)
+
+        return statistics, 200
 
     def post(self):
         params = parser.parse_args()
