@@ -16,6 +16,10 @@ def create_app(conf):
         db.drop_all()
         db.create_all()
 
+    @app.route('/')
+    def welcome():
+        return 'Welcome to word counter website!'
+
     api = Api(app, catch_all_404s=True)
     # mapping resource with routes
     api.add_resource(StatisticResource, '/v1/statistics/<int:statistic_id>')
