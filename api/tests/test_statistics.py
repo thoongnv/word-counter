@@ -65,3 +65,60 @@ class StatisticTestCase(BaseTestCase):
         })
         self.assertEqual(resp.status_code, 201)
         self.assertTrue(resp.json['id'])
+
+        # statistic example.com again
+        resp = self.client.post('/v1/statistics', json={
+            'website_url': 'http://example.com',
+        })
+        self.assertEqual(resp.status_code, 400)
+
+    def test_update_statistic(self):
+        # update unknown ID
+        resp = self.client.get('/v1/statistics/-999')
+        self.assertEqual(resp.status_code, 404)
+
+        # statistic example.com
+        resp = self.client.post('/v1/statistics', json={
+            'website_url': 'http://example.com',
+        })
+        self.assertEqual(resp.status_code, 201)
+
+        # get previous statistic
+        resp = self.client.get('/v1/statistics/{}'.format(resp.json['id']))
+        self.assertEqual(resp.status_code, 200)
+        updated_at = resp.json['updated_at']
+
+        # update example.com
+        resp = self.client.put('/v1/statistics/{}'.format(resp.json['id']))
+        self.assertEqual(resp.status_code, 200)
+
+        # get updated statistic
+        resp = self.client.get('/v1/statistics/{}'.format(resp.json['id']))
+        self.assertEqual(resp.status_code, 200)
+        self.assertGreater(resp.json['updated_at'], updated_at)
+
+    def test_delete_statistic(self):
+        # delete unknown ID
+        resp = self.client.get('/v1/statistics/-999')
+        self.assertEqual(resp.status_code, 404)
+
+        # statistic example.com
+        resp = self.client.post('/v1/statistics', json={
+            'website_url': 'http://example.com',
+        })
+        self.assertEqual(resp.status_code, 201)
+
+        # delete previous statistic
+        resp = self.client.delete('/v1/statistics/{}'.format(resp.json['id']))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json['id'], None)
+
+        # get all statistic
+        resp = self.client.get('/v1/statistics')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json, {
+            'total': 0,
+            'offset': 0,
+            'limit': 10,
+            'data': [],
+        })

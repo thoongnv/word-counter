@@ -60,7 +60,22 @@ class StatisticResource(Resource):
 
     def put(self, statistic_id):
         statistic = abort_if_statistic_not_exist(statistic_id)
+        counter, error = WordCounter.from_website(statistic.url)
+        if error:
+            abort(400, message=error)
+
+        # we actually need values to update but now just force recalculate
+        # remmove current word counter
+        delete_words_q = Word.__table__.delete().where(
+            Word.site_id == statistic.id)
+        db.session.execute(delete_words_q)
+
         # recalculate statistic
+        for word, frequency in counter.items():
+            statistic.words.append(Word(name=word, frequency=frequency))
+        statistic.updated_at = datetime.datetime.now()
+        db.session.commit()
+
         return {'id': statistic.id}, 200
 
     def delete(self, statistic_id):
@@ -99,27 +114,20 @@ class StatisticResourceList(Resource):
     def post(self):
         params = parser.parse_args()
         website_url = params.get('website_url', '')
-        statistic = False
         if website_url:
             counter, error = WordCounter.from_website(website_url)
             if error:
                 abort(400, message=error)
 
-            statistic = abort_if_statistic_not_exist(
-                website_url=website_url, raise_error=False)
-            if not statistic:
+            try:
                 statistic = Site(url=website_url)
                 db.session.add(statistic)
-            else:
-                # already have statistics, remove it
-                delete_words_q = Word.__table__.delete().where(
-                    Word.site_id == statistic.id)
-                db.session.execute(delete_words_q)
+                for word, frequency in counter.items():
+                    statistic.words.append(
+                        Word(name=word, frequency=frequency))
+                db.session.commit()
+                return {'id': statistic.id}, 201
+            except Exception as e:
+                abort(400, message=str(e))
 
-            for word, frequency in counter.items():
-                statistic.words.append(
-                    Word(name=word, frequency=frequency))
-            statistic.updated_at = datetime.datetime.now()
-            db.session.commit()
-
-        return {'id': statistic.id}, 201
+        abort(400, message='Missing website URL for word counting')

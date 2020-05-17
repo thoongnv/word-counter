@@ -6,7 +6,9 @@ class Word(db.Model):
     name = db.Column(db.String)
     frequency = db.Column(db.Integer)
     site_id = db.Column(db.Integer, db.ForeignKey('site.id'), nullable=False)
-    site = db.relationship('Site', backref=db.backref('words', lazy='dynamic'))
+    site = db.relationship(
+        'Site',
+        backref=db.backref('words', lazy='dynamic', cascade='all, delete'))
 
     @property
     def json(self):
