@@ -2,10 +2,43 @@
   text-align: center;
 }
 
-.App .Histogram .recharts-wrapper {
-    margin: 0 auto;
+.App .Input button {
+    margin-left: 5px;
+}
+
+.App .Input input {
+    width: 300px;
+    height: 25px;
+    padding-left: 5px;
+}
+
+.App .Input input,button {
+    border-radius: 5px;
+    border-width: 1px;
+    border-style: inset;
+}
+
+.App .Info {
+    margin-top: 10px;
 }
 
 .App .Error {
     color: red;
+}
+
+.App .Success {
+    color: blue;
+}
+
+.App .Histogram .Filter {
+    margin-top: 5px;
+}
+
+.App .Histogram .Filter label[for=sorting] {
+    margin-left: 5px;
+}
+
+/* Override recharts */
+.recharts-responsive-container {
+    margin: 0 auto;
 }

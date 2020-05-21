@@ -1,5 +1,5 @@
 from tests.test_base import BaseTestCase
-from utils.counter import WordCounter
+from utils.funcs import WordCounter
 
 
 class WordCounterTestCase(BaseTestCase):

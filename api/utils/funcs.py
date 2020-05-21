@@ -1,8 +1,10 @@
 import socket
 import string
+
 import unicodedata
 import urllib.request
 from collections import defaultdict
+from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 from bs4.element import Comment
@@ -61,3 +63,13 @@ class WordCounter:
                 error = str(e)
 
         return counter, error
+
+
+def parser_website_url(website_url):
+    if website_url:
+        # set default schema
+        parser = urlparse(website_url, scheme='http')
+        website_url = parser.geturl()
+
+    # TODO Seems geturl() from urllib.parse return redundant scheme mapping
+    return website_url.replace('http:///', 'http://').lower()
