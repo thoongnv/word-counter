@@ -1,3 +1,4 @@
+import socket
 import string
 import unicodedata
 import urllib.request
@@ -52,7 +53,10 @@ class WordCounter:
             counter = WordCounter.from_html(html)
         except Exception as e:
             if hasattr(e, 'reason'):
-                error = e.reason
+                if isinstance(e.reason, socket.timeout):
+                    error = 'Timeout occurred while fetching'
+                else:
+                    error = 'Fetching error: {}'.format(e.reason.capitalize())
             else:
                 error = str(e)
 

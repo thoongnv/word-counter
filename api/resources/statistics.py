@@ -1,5 +1,7 @@
 import datetime
+import logging
 
+from flask.logging import default_handler
 from flask_restful import Resource, abort, reqparse
 
 from models.base import db
@@ -8,6 +10,9 @@ from models.words import Word
 from resources.base import get_paging_params
 from utils.counter import WordCounter
 from utils.misc import DEFAULT_PAGINATION_LIMIT
+
+_logger = logging.getLogger()
+_logger.addHandler(default_handler)
 
 parser = reqparse.RequestParser()
 parser.add_argument('website_url', type=str)
@@ -128,6 +133,7 @@ class StatisticResourceList(Resource):
                 db.session.commit()
                 return {'id': statistic.id}, 201
             except Exception as e:
-                abort(400, message=str(e))
+                _logger.error(e)
+                abort(400, message='Error occurred when count word frequency')
 
         abort(400, message='Missing website URL for word counting')
