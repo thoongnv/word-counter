@@ -6,3 +6,4 @@ backend/word_counter.sqlite
 backend/word_counter_test.sqlite
 .DS_Store
 .env
+.tox/
