@@ -62,6 +62,10 @@ function App() {
         ],
     });
 
+    function getAPIUrl(path) {
+        return process.env.REACT_APP_SERVER_URL + '/' + path.replace(/^\//, "");
+    }
+
     function parseHistogramOptions(options) {
         return '?order=' + options.order + '&offset=' + options.offset + '&limit=' + options.limit;
     }
@@ -69,6 +73,22 @@ function App() {
     function updateHistogramOptions(options) {
         // refetch the statistic via GET
         fetchStatisticData(statisticId, options);
+    }
+
+    function handleRequestError(error) {
+        setHasError(true);
+        setHistogramData([]);
+        setDisabledBtn(false);
+        // catch the error
+        if (error.json) {
+            error.json().then(error => {
+                setInfoMessage(error.message);
+            }).catch(() => {
+                setInfoMessage(error.statusText);
+            })
+        } else {
+            setInfoMessage('Failed to fetch the statistics');
+        }
     }
 
     function handleKeyPress(e) {
@@ -90,7 +110,7 @@ function App() {
 
     function fetchStatisticData(statisticId, options) {
         // get word counter statistics
-        let getUrl = '/v1/statistics/' + statisticId + parseHistogramOptions(options);
+        let getUrl = getAPIUrl('/v1/statistics/') + statisticId + parseHistogramOptions(options);
         fetch(getUrl).then(response => {
             if (!response.ok) {
                 throw response;
@@ -124,12 +144,7 @@ function App() {
             setDisabledBtn(false);
             setInfoMessage('Found total <strong>' + totalWords + '</strong> words on ' + websiteUrl);
         }).catch(error => {
-            error.json().then(error => {
-                setHasError(true);
-                setInfoMessage(error.message);
-                setHistogramData([]);
-                setDisabledBtn(false);
-            })
+            handleRequestError(error);
         })
     }
 
@@ -137,7 +152,7 @@ function App() {
         // First create statistics via POST request, then retrieve the result via GET
         e.preventDefault();
         setDisabledBtn(true);
-        fetch('/v1/statistics', {
+        fetch(getAPIUrl('/v1/statistics'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -151,12 +166,7 @@ function App() {
         }).then(data => {
             fetchStatisticData(data.id, histogramOptions);
         }).catch(error => {
-            error.json().then(error => {
-                setHasError(true);
-                setInfoMessage(error.message);
-                setHistogramData([]);
-                setDisabledBtn(false);
-            })
+            handleRequestError(error);
         })
     }
 

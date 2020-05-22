@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask_cors import CORS
 from flask_restful import Api
 
 from models.base import db
@@ -10,6 +11,7 @@ from resources.statistics import StatisticResource, StatisticResourceList
 def create_app(conf):
     app = Flask(__name__)
     app.config.from_object(conf)
+    CORS(app, resources={r"/v1/*": {"origins": "*"}})
 
     db.init_app(app)
     with app.app_context():

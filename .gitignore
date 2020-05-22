@@ -2,6 +2,7 @@
 .vscode/
 __pycache__/
 *.pyc
-.DS_Store
 api/word_counter.db
 api/word_counter_test.db
+.DS_Store
+.env

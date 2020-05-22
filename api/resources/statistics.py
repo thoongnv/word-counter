@@ -61,6 +61,14 @@ def build_words(site, offset, limit, order_by):
 
 
 class StatisticMixins:
+    def options(self):
+        return {}, 200, {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+            'Access-Control-Allow-Methods': 'PUT, POST, DELETE',
+
+        }
+
     def save_update_statistic(self, statistic, website_url='',
                               check_existing=False, status_code=200):
         updated_at = False
@@ -92,7 +100,7 @@ class StatisticMixins:
             db.session.commit()
         except Exception as e:
             _logger.error(e)
-            abort(400, message='Error occurred when count word frequency')
+            abort(400, message='Failed to calculate words frequency')
 
         return {'id': statistic.id}, status_code
 
@@ -159,4 +167,4 @@ class StatisticResourceList(Resource, StatisticMixins):
                 statistic=False, website_url=website_url,
                 check_existing=check_existing, status_code=201)
 
-        abort(400, message='Missing website URL for word counting')
+        abort(400, message='Missing website URL')
