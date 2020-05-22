@@ -12,7 +12,7 @@ class ProductionConfig(Config):
 class DevelopmentConfig(Config):
     DEBUG = True
     SECRET_KEY = 'zKAA664G46LFlppb9Lb9Tg'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///word_counter.db'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///word_counter.sqlite'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
@@ -20,5 +20,5 @@ class TestingConfig(Config):
     DEBUG = True
     TESTING = True
     SECRET_KEY = 'nXsA8NuWawH2QixdsqRiGQ'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///word_counter_test.db'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///word_counter_test.sqlite'
     SQLALCHEMY_TRACK_MODIFICATIONS = False

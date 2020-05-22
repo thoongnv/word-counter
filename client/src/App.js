@@ -151,20 +151,21 @@ function App() {
                     recentWebsites.pop();
                 }
             }
+            if (!recentWebsiteUrl) {
+                recentWebsiteUrl = websiteUrl;
+            }
             recentWebsites.unshift({
-                websiteUrl: recentWebsiteUrl ? recentWebsiteUrl : websiteUrl,
+                websiteUrl: recentWebsiteUrl,
                 statisticId: statisticId,
             })
             setRecentWebsites(recentWebsites);
-            if (recentWebsiteUrl) {
-                setWebsiteUrl(recentWebsiteUrl);
-            }
+            setWebsiteUrl(recentWebsiteUrl);
             setStatisticId(statisticId);
             setHistogramData((words && words.data) || []);
             setHistogramOptions(options);
             setHasError(false);
             setDisabledBtn(false);
-            setInfoMessage('Found total <strong>' + totalWords + '</strong> words on ' + websiteUrl);
+            setInfoMessage('Found total <strong>' + totalWords + '</strong> words on ' + recentWebsiteUrl);
         }).catch(error => {
             handleRequestError(error);
         })
