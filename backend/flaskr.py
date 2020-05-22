@@ -32,5 +32,5 @@ def create_app(conf):
 
 if __name__ == '__main__':
     app = create_app(os.environ.get(
-        'CONFIG_ENVIRONMENT', 'conf.DevelopmentConfig'))
-    app.run()
+        'FLASK_CONFIG_ENVIRONMENT', 'conf.DevelopmentConfig'))
+    app.run(host=os.environ.get('FLASK_RUN_HOST', '0.0.0.0'))
