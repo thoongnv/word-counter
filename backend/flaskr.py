@@ -20,7 +20,7 @@ def create_app(conf):
 
     @app.route('/')
     def welcome():
-        return 'Welcome to word counter website!'
+        return 'Welcome to word counting website!'
 
     api = Api(app, catch_all_404s=True)
     # mapping resource with routes

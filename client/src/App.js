@@ -28,7 +28,7 @@ const Histogram = ({ histogramData, histogramOptions, updateHistogramOptions }) 
                 </select>
             </div>
             <div className="Recharts">
-                <ResponsiveContainer width="90%" height={600}>
+                <ResponsiveContainer width="90%" height={550}>
                     <BarChart data={histogramData} margin={{top: 10}}>
                         <XAxis dataKey="name" height={100} interval={0} angle={-90} textAnchor="end" />
                         <YAxis dataKey="frequency" />
@@ -133,6 +133,9 @@ function App() {
                     {label: 20, value: 20},
                     {label: 'All', value: 'undefined'},
                 )
+                if (options.limit === 100) {
+                    options.limit = 'undefined';
+                }
             } else {
                 options.filterWordOptions.push(
                     {label: 'All', value: 'undefined'},

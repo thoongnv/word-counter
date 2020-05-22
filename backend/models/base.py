@@ -2,8 +2,6 @@ import datetime
 
 from flask_sqlalchemy import SQLAlchemy
 
-from utils.misc import DEFAULT_DATETIME_FORMAT
-
 
 def to_json(inst, cls):
     """
@@ -17,7 +15,7 @@ def to_json(inst, cls):
         else:
             # convert other types
             if isinstance(v, datetime.datetime):
-                d[c.name] = v.strftime(DEFAULT_DATETIME_FORMAT)
+                d[c.name] = v.isoformat()
             else:
                 d[c.name] = v
     return d
