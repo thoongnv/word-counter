@@ -49,6 +49,7 @@ function App() {
     const [disabledBtn, setDisabledBtn] = useState(false);
     const [hasError, setHasError] = useState(false);
     const [infoMessage, setInfoMessage] = useState('');
+    const [recentWebsites, setRecentWebsites] = useState([]);
     const [histogramData, setHistogramData] = useState([]);
     const [histogramOptions, setHistogramOptions] = useState({
         // default filter first 100 words order by decreasing frequency
@@ -70,9 +71,9 @@ function App() {
         return '?order=' + options.order + '&offset=' + options.offset + '&limit=' + options.limit;
     }
 
-    function updateHistogramOptions(options) {
+    function updateHistogramOptions(options, recentStatisticId=undefined) {
         // refetch the statistic via GET
-        fetchStatisticData(statisticId, options);
+        fetchStatisticData(recentStatisticId ? recentStatisticId : statisticId, options);
     }
 
     function handleRequestError(error) {
@@ -137,6 +138,27 @@ function App() {
                     {label: 'All', value: 'undefined'},
                 )
             }
+
+            // save recent websites
+            let foundIndex = recentWebsites.findIndex(website => website.statisticId === statisticId);
+            let recentWebsiteUrl = undefined;
+            if (foundIndex > -1) {
+                recentWebsiteUrl = recentWebsites[foundIndex].websiteUrl;
+                recentWebsites.splice(foundIndex, 1);
+            } else {
+                // keep most 5 recent websites
+                if (recentWebsites.length >= 5) {
+                    recentWebsites.pop();
+                }
+            }
+            recentWebsites.unshift({
+                websiteUrl: recentWebsiteUrl ? recentWebsiteUrl : websiteUrl,
+                statisticId: statisticId,
+            })
+            setRecentWebsites(recentWebsites);
+            if (recentWebsiteUrl) {
+                setWebsiteUrl(recentWebsiteUrl);
+            }
             setStatisticId(statisticId);
             setHistogramData((words && words.data) || []);
             setHistogramOptions(options);
@@ -148,6 +170,10 @@ function App() {
         })
     }
 
+    function handleClickRecentWebsite(e) {
+        updateHistogramOptions(histogramOptions, parseInt(e.target.getAttribute('statistic_id')));
+    }
+
     function handleCalculateWords(e) {
         // First create statistics via POST request, then retrieve the result via GET
         e.preventDefault();
@@ -155,7 +181,8 @@ function App() {
         fetch(getAPIUrl('/v1/statistics'), {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({website_url: websiteUrl, check_existing: true})
         }).then(response => {
@@ -173,6 +200,14 @@ function App() {
     return (
         <div className="App">
             <h2>Welcome to word counting website!</h2>
+
+            { recentWebsites.length ?
+                <div className="Recent">
+                    <span htmlFor="recent">Recently websites</span><br/>
+                    { recentWebsites.map(({websiteUrl, statisticId}) => <span className="button" onClick={handleClickRecentWebsite} key={statisticId} statistic_id={statisticId}>{websiteUrl}</span>) }
+                </div>
+            : null }
+
             <div className="Input">
                 <input type="text" name="websiteUrl" value={websiteUrl} onChange={handleChangeWebsiteUrl} onKeyPress={handleKeyPress} placeholder="Enter the website URL"></input>
                 <button type="button" disabled={disabledBtn} onClick={handleCalculateWords}>Calculate words</button>

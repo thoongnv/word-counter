@@ -30,11 +30,22 @@
     color: blue;
 }
 
-.App .Histogram .Filter {
+.App .Recent {
+    margin-bottom: 10px;
+}
+
+.App .Recent span.button {
+    display: block;
+    text-decoration: underline;
+    cursor: pointer;
+    color:blue;
+}
+
+.Histogram .Filter {
     margin-top: 5px;
 }
 
-.App .Histogram .Filter label[for=sorting] {
+.Histogram .Filter label[for=sorting] {
     margin-left: 5px;
 }
 
